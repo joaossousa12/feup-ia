@@ -1,5 +1,6 @@
 import random
 import pandas as pd
+import math
 
 class Package:
     def __init__(self, package_type, coordinates):
@@ -20,6 +21,12 @@ def generate_package_stream(num_packages, map_size):
     package_stream = [Package(random.choice(package_types), (random.uniform(0, map_size), random.uniform(0, map_size))) for _ in range(num_packages)]
 
     return package_stream
+
+def calcDistance(coordinates1, coordinates2):
+    return math.sqrt((coordinates2[0] - coordinates1[0])**2 + (coordinates2[1] - coordinates1[1])**2)
+
+def calcDamageChance(distance, breaking_chance):
+    return 1 - ((1 - breaking_chance) ** distance)
 
 # Example: Generate a stream of 15 packages in a map of size 60x60
 
