@@ -1,6 +1,7 @@
 import random
 import pandas as pd
 import math
+import matplotlib.pyplot as plt
 
 class Package:
     def __init__(self, package_type, coordinates):
@@ -27,6 +28,21 @@ def calcDistance(coordinates1, coordinates2):
 
 def calcDamageChance(distance, breaking_chance):
     return 1 - ((1 - breaking_chance) ** distance)
+    
+def graphicInterface(package_stream):
+    plt.figure(figsize=(8, 8))
+    plt.title("Package Coordinates")
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    
+    i = 0
+    for package in package_stream:
+        plt.scatter(package.coordinates_x, package.coordinates_y, label=i)
+        i+=1
+
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
 # Example: Generate a stream of 15 packages in a map of size 60x60
 
@@ -36,3 +52,5 @@ package_stream = generate_package_stream(num_packages, map_size)
 
 df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(package_stream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
 print(df)
+
+graphicInterface(package_stream)
