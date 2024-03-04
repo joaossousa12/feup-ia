@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 import random
+import pandas as pd
 
 def calcDistance(coordinates1, coordinates2):
     return math.sqrt((coordinates2[0] - coordinates1[0])**2 + (coordinates2[1] - coordinates1[1])**2)
@@ -58,3 +59,7 @@ def graphicInterface(package_stream, totalCost):
     plt.legend()
     plt.grid(True)
     plt.show()
+
+def printPackageDF(package_stream):
+    df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(package_stream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
+    print(df)

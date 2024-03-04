@@ -1,5 +1,4 @@
 import random
-import pandas as pd
 import algorithms
 import utils
 
@@ -27,31 +26,21 @@ num_packages = int(input("Number of packages (example: 15): "))
 map_size = int(input("Map size (example: 60): "))
 package_stream = generate_package_stream(num_packages, map_size)
 
-print("Random order\n")
+print("\nRandom order\n")
+randomPackageStream = package_stream
+utils.printPackageDF(randomPackageStream)
+totalCostRandom = round(utils.calculateTotalCost(package_stream), 2)
+print("\nThe total cost in this order is :", totalCostRandom)
+utils.graphicInterface(package_stream, totalCostRandom)
 
-df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(package_stream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
-print(df)
-
-totalCost = round(utils.calculateTotalCost(package_stream), 2)
-
-print("\nThe total cost in this order is :", totalCost)
-
-utils.graphicInterface(package_stream, totalCost)
-
-print("Greedy order\n")
+print("\nGreedy order\n")
 greedyPackageStream = algorithms.greedy(package_stream)
-
-df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(greedyPackageStream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
-print(df)
-
+utils.printPackageDF(greedyPackageStream)
 totalCostGreedy = round(utils.calculateTotalCost(greedyPackageStream), 2)
-
 print("\nThe total cost in this order is :", totalCostGreedy)
-
 utils.graphicInterface(greedyPackageStream, totalCostGreedy)
 
-if totalCostGreedy < totalCost:
+if totalCostGreedy < totalCostRandom:
     print("\nThe approach with the minimum cost is the greedy one")
-
 else:
     print("\nThe approach with the minimum cost is the random one")
