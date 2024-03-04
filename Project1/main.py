@@ -1,7 +1,7 @@
 import random
 import pandas as pd
-import math
-import matplotlib.pyplot as plt
+import algorithms
+import utils
 
 class Package:
     def __init__(self, package_type, coordinates):
@@ -23,75 +23,35 @@ def generate_package_stream(num_packages, map_size):
 
     return package_stream
 
-def calcDistance(coordinates1, coordinates2):
-    return math.sqrt((coordinates2[0] - coordinates1[0])**2 + (coordinates2[1] - coordinates1[1])**2)
-
-def calcDamageChance(distance, breaking_chance):
-    return 1 - ((1 - breaking_chance) ** distance)
-    
-def graphicInterface(package_stream, totalCost):
-    plt.figure(figsize=(8, 8))
-    plt.title("Package Delivery Route with a total cost of " + str(totalCost))
-    plt.xlabel("X")
-    plt.ylabel("Y")
-
-    x_coords = [0] + [package.coordinates_x for package in package_stream]
-    y_coords = [0] + [package.coordinates_y for package in package_stream]
-    
-    plt.scatter(0, 0, color='red', label='Origin')
-    plt.text(0, 0, '  Origin', verticalalignment='bottom', color='red')
-
-    for i, (x, y) in enumerate(zip(x_coords[1:], y_coords[1:]), start=1):
-        plt.scatter(x, y, label=f'Package {i-1}')
-        plt.text(x, y, f'  {i-1}', verticalalignment='bottom')
-    
-    plt.plot(x_coords, y_coords, marker='o')
-
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-
-def calculateTotalCost(package_stream):
-    totalCost = 0
-    totalDistance = 0
-    currLocation = (0, 0)
-
-    for package in package_stream:
-        distanceToPackage = calcDistance(currLocation, (package.coordinates_x, package.coordinates_y))
-        totalDistance += distanceToPackage
-
-        totalCost += distanceToPackage * 0.3
-
-        if package.package_type == 'fragile':
-            damageChance = calcDamageChance(totalDistance, package.breaking_chance)
-            
-            if damageChance > random.uniform(0, 1):
-                print('Package broken')
-                totalCost += package.breaking_cost
-            
-        elif package.package_type == 'urgent':
-            deliveryTime = totalDistance # vai ser igual porque tamos a calcular em minutos para 60kmh (x * 60 / 60)
-
-            if deliveryTime > package.delivery_time:
-                print('After scheduled')
-                totalCost += (deliveryTime - package.delivery_time) * 0.3
-        
-        currLocation = (package.coordinates_x, package.coordinates_y)
-    
-    return totalCost
-            
-
-# Example: Generate a stream of 15 packages in a map of size 60x60
-
-num_packages = 15
-map_size = 60
+num_packages = int(input("Number of packages (example: 15): "))
+map_size = int(input("Map size (example: 60): "))
 package_stream = generate_package_stream(num_packages, map_size)
+
+print("Random order\n")
 
 df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(package_stream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
 print(df)
 
-totalCost = round(calculateTotalCost(package_stream), 2)
+totalCost = round(utils.calculateTotalCost(package_stream), 2)
 
 print("\nThe total cost in this order is :", totalCost)
 
-graphicInterface(package_stream, totalCost)
+utils.graphicInterface(package_stream, totalCost)
+
+print("Greedy order\n")
+greedyPackageStream = algorithms.greedy(package_stream)
+
+df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, package.breaking_chance if package.package_type == 'fragile' else None, package.breaking_cost if package.package_type == 'fragile' else None, package.delivery_time if package.package_type == 'urgent' else None) for i, package in enumerate(greedyPackageStream, start=1)], columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
+print(df)
+
+totalCostGreedy = round(utils.calculateTotalCost(greedyPackageStream), 2)
+
+print("\nThe total cost in this order is :", totalCostGreedy)
+
+utils.graphicInterface(greedyPackageStream, totalCostGreedy)
+
+if totalCostGreedy < totalCost:
+    print("\nThe approach with the minimum cost is the greedy one")
+
+else:
+    print("\nThe approach with the minimum cost is the random one")
