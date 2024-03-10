@@ -19,3 +19,39 @@ def greedy(package_stream): # will find the nearest package each time
         package_stream.remove(nearest)
 
     return result
+
+def hill_climbing(package_stream):
+    current_sequence = package_stream
+    current_cost = utils.calculateTotalCost(current_sequence)
+
+    while True:
+        neighbors = get_neighbors(current_sequence)
+
+        min_cost = current_cost
+        min_sequence = current_sequence
+
+        for neighbor in neighbors:
+            cost = utils.calculateTotalCost(neighbor)
+
+            if cost < min_cost:
+                min_cost = cost
+                min_sequence = neighbor
+
+        if min_cost < current_cost:
+            current_sequence = min_sequence
+            current_cost = min_cost
+        else:
+            break
+
+    return current_sequence
+
+def get_neighbors(sequence):
+    neighbors = []
+
+    for i in range(len(sequence)):
+        for j in range(i + 1, len(sequence)):
+            neighbor = sequence.copy()
+            neighbor[i], neighbor[j] = neighbor[j], neighbor[i]
+            neighbors.append(neighbor)
+
+    return neighbors

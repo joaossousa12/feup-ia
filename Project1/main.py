@@ -34,13 +34,24 @@ print("\nThe total cost in this order is :", totalCostRandom)
 utils.graphicInterface(package_stream, totalCostRandom)
 
 print("\nGreedy order\n")
-greedyPackageStream = algorithms.greedy(package_stream)
+greedyPackageStream = algorithms.greedy(package_stream[:])  # Create a copy of package_stream
 utils.printPackageDF(greedyPackageStream)
 totalCostGreedy = round(utils.calculateTotalCost(greedyPackageStream), 2)
 print("\nThe total cost in this order is :", totalCostGreedy)
 utils.graphicInterface(greedyPackageStream, totalCostGreedy)
 
-if totalCostGreedy < totalCostRandom:
+print("\nHill Climbing\n")
+hillClimbingPackageStream = algorithms.hill_climbing(package_stream[:])  # Create a copy of package_stream
+utils.printPackageDF(hillClimbingPackageStream)
+totalCostHillClimbing = round(utils.calculateTotalCost(hillClimbingPackageStream), 2)
+print("\nThe total cost in this order is :", totalCostHillClimbing)
+utils.graphicInterface(hillClimbingPackageStream, totalCostHillClimbing)
+
+
+
+if totalCostGreedy < totalCostRandom and totalCostGreedy < totalCostHillClimbing:
     print("\nThe approach with the minimum cost is the greedy one")
-else:
+elif totalCostRandom < totalCostGreedy and totalCostRandom < totalCostHillClimbing:
     print("\nThe approach with the minimum cost is the random one")
+else:
+    print("\nThe approach with the minimum cost is the hill climbing one")

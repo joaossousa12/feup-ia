@@ -24,14 +24,14 @@ def calculateTotalCost(package_stream):
             damageChance = calcDamageChance(totalDistance, package.breaking_chance)
             
             if damageChance > random.uniform(0, 1):
-                print('Package broken')
+                # print('Package broken')
                 totalCost += package.breaking_cost
             
         elif package.package_type == 'urgent':
             deliveryTime = totalDistance # vai ser igual porque tamos a calcular em minutos para 60kmh (x * 60 / 60)
 
             if deliveryTime > package.delivery_time:
-                print('After scheduled')
+                # print('After scheduled')
                 totalCost += (deliveryTime - package.delivery_time) * 0.3
         
         currLocation = (package.coordinates_x, package.coordinates_y)
