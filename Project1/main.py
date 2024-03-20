@@ -47,11 +47,20 @@ totalCostHillClimbing = round(utils.calculateTotalCost(hillClimbingPackageStream
 print("\nThe total cost in this order is :", totalCostHillClimbing)
 utils.graphicInterface(hillClimbingPackageStream, totalCostHillClimbing)
 
+print("\nGenetic Algorithm\n")
+geneticPackageStream = algorithms.genetic_algorithm(package_stream[:], num_packages * 2)  # Create a copy of package_stream
+utils.printPackageDF(geneticPackageStream)
+totalCostGenetic = round(utils.calculateTotalCost(geneticPackageStream), 2)
+print("\nThe total cost in this order is :", totalCostGenetic)
+utils.graphicInterface(geneticPackageStream, totalCostGenetic)
 
 
-if totalCostGreedy < totalCostRandom and totalCostGreedy < totalCostHillClimbing:
+
+if totalCostGreedy < totalCostRandom and totalCostGreedy < totalCostHillClimbing and totalCostGreedy < totalCostGenetic:
     print("\nThe approach with the minimum cost is the greedy one")
-elif totalCostRandom < totalCostGreedy and totalCostRandom < totalCostHillClimbing:
+elif totalCostRandom < totalCostGreedy and totalCostRandom < totalCostHillClimbing and totalCostRandom < totalCostGenetic:
     print("\nThe approach with the minimum cost is the random one")
-else:
+elif totalCostHillClimbing < totalCostGreedy and totalCostHillClimbing < totalCostRandom and totalCostHillClimbing < totalCostGenetic:
     print("\nThe approach with the minimum cost is the hill climbing one")
+else:
+    print("\nThe approach with the minimum cost is the genetic algorithm one")
