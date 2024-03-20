@@ -7,6 +7,8 @@ class Package:
         self.package_type = package_type
         self.coordinates_x = coordinates[0]
         self.coordinates_y = coordinates[1]
+        self.did_break = False
+        self.was_late = False
         
         if package_type == 'fragile':
             self.breaking_chance = random.uniform(0.0001, 0.01) # 0.01-1% chance of breaking per km

@@ -24,15 +24,21 @@ def calculateTotalCost(package_stream):
             damageChance = calcDamageChance(totalDistance, package.breaking_chance)
             
             if damageChance > random.uniform(0, 1):
-                # print('Package broken')
+                #print('Package broken')
                 totalCost += package.breaking_cost
+                package.did_break = True
+            else:
+                package.did_break = False
             
         elif package.package_type == 'urgent':
             deliveryTime = totalDistance # vai ser igual porque tamos a calcular em minutos para 60kmh (x * 60 / 60)
 
             if deliveryTime > package.delivery_time:
-                # print('After scheduled')
+                #print('After scheduled')
                 totalCost += (deliveryTime - package.delivery_time) * 0.3
+                package.was_late = True
+            else:
+                package.was_late = False
         
         currLocation = (package.coordinates_x, package.coordinates_y)
     
@@ -64,7 +70,9 @@ def printPackageDF(package_stream):
     df = pd.DataFrame([(i, package.package_type, package.coordinates_x, package.coordinates_y, 
                         package.breaking_chance if package.package_type == 'fragile' else None, 
                         package.breaking_cost if package.package_type == 'fragile' else None, 
-                        package.delivery_time if package.package_type == 'urgent' else None) 
+                        package.delivery_time if package.package_type == 'urgent' else None,
+                        package.did_break if package.package_type == 'fragile' else None,
+                        package.was_late if package.package_type == 'urgent' else None) 
                         for i, package in enumerate(package_stream, start=1)], 
-                        columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time"])
+                        columns=["Package", "Type", "CoordinatesX", "CoordinatesY", "Breaking Chance", "Breaking Cost", "Delivery Time", "Break", "Late"])
     print(df)
