@@ -1,46 +1,46 @@
-import random
 import algorithms
 import utils
 
-class Package:
-    def __init__(self, package_type, coordinates):
-        self.package_type = package_type
-        self.coordinates_x = coordinates[0]
-        self.coordinates_y = coordinates[1]
-        
-        if package_type == 'fragile':
-            self.breaking_chance = random.uniform(0.0001, 0.01) # 0.01-1% chance of breaking per km
-            self.breaking_cost = random.uniform(3, 10) # Extra cost in case of breaking
-        
-        elif package_type == 'urgent':
-            self.delivery_time = random.uniform(100, 240) # Delivery time in minutes (100 minutes to 4 hours)
+import path
 
-def generate_package_stream(num_packages, map_size):
-    package_types = ['fragile', 'normal', 'urgent']
+flag = int(input("Do you want a random number of packages and the map size? (1 for yes, 0 for no): "))
 
-    package_stream = [Package(random.choice(package_types), (random.uniform(0, map_size), random.uniform(0, map_size))) for _ in range(num_packages)]
+if(flag == 1):
+    num_packages = int(input("Number of packages (example: 15): "))
+    map_size = int(input("Map size (example: 60): "))
+    package_stream = path.generate_random_package_stream(num_packages, map_size)
+else:
+    num_packages = 15
+    map_size = 60
+    package_stream = path.generate_static_package_stream()
 
-    return package_stream
-
-num_packages = int(input("Number of packages (example: 15): "))
-map_size = int(input("Map size (example: 60): "))
-package_stream = generate_package_stream(num_packages, map_size)
 
 print("\nRandom order\n")
-randomPackageStream = package_stream
-utils.printPackageDF(randomPackageStream)
-totalCostRandom = round(utils.calculateTotalCost(package_stream), 2)
+randomPath = algorithms.random_path(package_stream[:])
+utils.printPackageDF(randomPath)
+totalCostRandom = round(randomPath.cost, 2)
 print("\nThe total cost in this order is :", totalCostRandom)
-utils.graphicInterface(package_stream, totalCostRandom)
+utils.graphicInterface(randomPath, totalCostRandom)
 
 print("\nGreedy order\n")
-greedyPackageStream = algorithms.greedy(package_stream)
-utils.printPackageDF(greedyPackageStream)
-totalCostGreedy = round(utils.calculateTotalCost(greedyPackageStream), 2)
+greedyPath = algorithms.greedy(package_stream[:])
+utils.printPackageDF(greedyPath)
+totalCostGreedy = round(greedyPath.cost, 2)
 print("\nThe total cost in this order is :", totalCostGreedy)
-utils.graphicInterface(greedyPackageStream, totalCostGreedy)
+utils.graphicInterface(greedyPath, totalCostGreedy)
 
-if totalCostGreedy < totalCostRandom:
-    print("\nThe approach with the minimum cost is the greedy one")
-else:
-    print("\nThe approach with the minimum cost is the random one")
+
+print("\nHill Climbing\n")
+hillClimbingPackageStream = algorithms.hill_climbing(package_stream[:])  # Create a copy of package_stream
+utils.printPackageDF(hillClimbingPackageStream)
+totalCostHillClimbing = round(hillClimbingPackageStream.calculateTotalCost(), 2)
+print("\nThe total cost in this order is :", totalCostHillClimbing)
+utils.graphicInterface(hillClimbingPackageStream, totalCostHillClimbing)
+
+
+print("\nGenetic Algorithm\n")
+geneticPackageStream = algorithms.genetic_algorithm(package_stream[:], num_packages * 2)  # Create a copy of package_stream
+utils.printPackageDF(geneticPackageStream)
+totalCostGenetic = round(geneticPackageStream.calculateTotalCost(), 2)
+print("\nThe total cost in this order is :", totalCostGenetic)
+utils.graphicInterface(geneticPackageStream, totalCostGenetic)
