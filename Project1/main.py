@@ -39,7 +39,7 @@ utils.graphicInterface(hillClimbingPackageStream, totalCostHillClimbing)
 
 
 print("\nGenetic Algorithm\n")
-geneticPackageStream = algorithms.genetic_algorithm(package_stream[:], num_packages * 2)  # Create a copy of package_stream
+geneticPackageStream = algorithms.genetic_algorithm(package_stream[:], 50, 5000)  # Create a copy of package_stream
 utils.printPackageDF(geneticPackageStream)
 totalCostGenetic = round(geneticPackageStream.calculateTotalCost(), 2)
 print("\nThe total cost in this order is :", totalCostGenetic)

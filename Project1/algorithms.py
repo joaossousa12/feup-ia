@@ -50,32 +50,55 @@ def hill_climbing(package_stream):
     return current_sequence
 
 def genetic_algorithm(package_stream, population_size, generations=5000):
-    population = [random.sample(package_stream, len(package_stream)) for _ in range(population_size)] # Generate initial random population
+    elite_size =round( 0.05*population_size)
+    population = [random.sample(package_stream, len(package_stream)) for _ in range(population_size)]
     best_individual = None
     best_fitness = float('inf')
     
-    for _ in range(generations):
+    for generation in range(generations):
         fitnesses = [path.Path(individual).calculateTotalCost() for individual in population]
 
+        # update the best individual found so far
         current_best_fitness = min(fitnesses)
         if current_best_fitness < best_fitness:
             best_fitness = current_best_fitness
-            best_individual = population[fitnesses.index(best_fitness)].copy()
+            best_individual = population[fitnesses.index(current_best_fitness)].copy()
+            # did this just to see how the algorithm is working
+            print(f"New better solution found at generation {generation}:")
+            print(f"Fitness: {best_fitness}")
+
+        # elite selection carry forward the best performing individuals
+        elites = select_elites(population, fitnesses, elite_size)
 
         parents = tournament_selection(population, fitnesses)
-
         children = []
+
+        # generating children with crossover and mutation
         for i in range(0, len(parents), 2):
-            child1, child2 = crossover(parents[i], parents[i+1])
-            child1 = mutate_with_probability(child1)
-            child2 = mutate_with_probability(child2)
-            children.extend([child1, child2])
+            if i + 1 < len(parents): 
+                child1, child2 = crossover(parents[i], parents[i+1])
+                child1 = mutate_with_probability(child1)
+                child2 = mutate_with_probability(child2)
+                children.extend([child1, child2])
 
-        population = replace_worst_individuals(population, children, fitnesses)
+        # introduce new random individuals to maintain diversity
+        new_individuals = [random.sample(package_stream, len(package_stream)) for _ in range(elite_size)]
+        population = replace_worst_individuals(population, children + new_individuals, fitnesses)
 
-        population[0] = best_individual
+        # ensuring the elites are always in the population
+        population = ensure_elites(population, elites, fitnesses)
 
     return path.Path(best_individual)
+
+def select_elites(population, fitnesses, elite_size):
+    sorted_by_fitness = sorted(zip(fitnesses, population), key=lambda x: x[0])
+    elites = [individual for _, individual in sorted_by_fitness[:elite_size]]
+    return elites
+
+def ensure_elites(population, elites, fitnesses):
+    sorted_population = sorted(zip(fitnesses, population), key=lambda pair: pair[0])
+    sorted_population[:len(elites)] = [(0, elite) for elite in elites]  # assuming fitness of 0 for elites for simplicity
+    return [individual for _, individual in sorted_population]
 
 def tournament_selection(population, fitnesses, tournament_size=3):
     parents = []
