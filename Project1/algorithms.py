@@ -49,7 +49,7 @@ def hill_climbing(package_stream):
 
     return current_sequence
 
-def genetic_algorithm(package_stream, population_size, generations=200):
+def genetic_algorithm(package_stream, population_size, generations=5000):
     population = [random.sample(package_stream, len(package_stream)) for _ in range(population_size)] # Generate initial random population
     best_individual = None
     best_fitness = float('inf')

@@ -16,7 +16,7 @@ class Package:
                 self.breaking_cost = breaking_cost
 
         elif package_type == 'urgent':
-            if package_type is None:
+            if delivery_time is None:
                 self.delivery_time = random.uniform(100, 240) # Delivery time in minutes (100 minutes to 4 hours)
             else: 
                 self.delivery_time = delivery_time
