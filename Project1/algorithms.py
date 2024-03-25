@@ -8,17 +8,20 @@ def random_path(package_stream):
 def greedy(package_stream): # will find the nearest package each time 
     currLocation = (0,0)
     result = []
-    while len(package_stream) != 1:
+    while len(package_stream) > 0:
         min_distance = float('inf')
-        nearest = None
+        nearest_packages = [] # fix for cases where there are multiple packages at the same distance
 
         for package in package_stream:
-            dist = package.dist(currLocation[0],currLocation[1])
-            
+            dist = package.dist(currLocation[0], currLocation[1])
             if dist < min_distance:
                 min_distance = dist
-                nearest = package
+                nearest_packages = [package]
+            elif dist == min_distance:
+                nearest_packages.append(package)
         
+        nearest = random.choice(nearest_packages)
+
         result.append(nearest)
         currLocation = (nearest.coordinates_x, nearest.coordinates_y)
         package_stream.remove(nearest)
@@ -50,8 +53,12 @@ def hill_climbing(package_stream):
     return current_sequence
 
 def genetic_algorithm(package_stream, population_size, generations=5000):
-    elite_size =round( 0.05*population_size)
+    elite_size = round(0.05 * population_size)
     population = [random.sample(package_stream, len(package_stream)) for _ in range(population_size)]
+    
+    hill_climbing_solution = hill_climbing(package_stream)
+    population[population_size-1] = hill_climbing_solution.package_stream
+    
     best_individual = None
     best_fitness = float('inf')
     
