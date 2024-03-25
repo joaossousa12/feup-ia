@@ -150,3 +150,30 @@ def replace_worst_individuals(population, children, fitnesses):
     sorted_population = [x for _, x in sorted(zip(fitnesses, population), key=lambda pair: pair[0])]
     sorted_population[-len(children):] = children
     return sorted_population
+
+def tabu_search(package_stream, tabu_size=10, max_iter=1000):
+    current_solution = greedy(package_stream)
+    best_solution = current_solution
+    tabu_list = []
+
+    for iteration in range(max_iter):
+        neighbors = current_solution.get_neighbors()
+
+        non_tabu_neighbors = [neighbor for neighbor in neighbors if neighbor.package_stream not in tabu_list]
+
+        if not non_tabu_neighbors:
+            break
+
+        best_neighbor = min(non_tabu_neighbors, key=lambda x: x.calculateTotalCost())
+
+        current_solution = best_neighbor
+
+        tabu_list.append(current_solution.package_stream)
+        if len(tabu_list) > tabu_size:
+            tabu_list.pop(0)
+
+        if current_solution.calculateTotalCost() < best_solution.calculateTotalCost():
+            best_solution = current_solution
+            print(f"Iteration {iteration+1}: Best solution cost = {best_solution.calculateTotalCost()}")
+
+    return best_solution
