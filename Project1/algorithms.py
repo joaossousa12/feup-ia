@@ -1,4 +1,5 @@
 import random
+import math
 
 import path
 
@@ -50,6 +51,35 @@ def hill_climbing(package_stream):
         else:
             break
 
+    return current_sequence
+
+# start with a given temperature and a given cooling_rate
+def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003):
+    current_sequence = hill_climbing(package_stream)
+    current_cost = current_sequence.calculateTotalCost()
+    
+    lowest = []
+    while temperature > 1:
+        neighbors = current_sequence.get_neighbors()
+        next_sequence = random.choice(neighbors) 
+        next_cost = next_sequence.calculateTotalCost()
+        # If the new solution is better, accept it
+        if next_cost < current_cost:
+            current_sequence = next_sequence
+            current_cost = next_cost
+            lowest.append(current_sequence)
+        # if not, we still have a chance to accept it
+        else:
+            probability = math.exp((current_cost - next_cost) / temperature)
+            if random.random() < probability:
+                current_sequence = next_sequence
+                current_cost = next_cost
+        
+        temperature *= 1 - cooling_rate
+    for i in lowest:
+        if i.calculateTotalCost() < current_cost:
+            current_sequence = i
+            current_cost = i.calculateTotalCost()
     return current_sequence
 
 def genetic_algorithm(package_stream, population_size, generations=5000):
