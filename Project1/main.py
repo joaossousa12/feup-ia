@@ -41,12 +41,12 @@ totalCostHillClimbing = round(hillClimbingPackageStream.calculateTotalCost(), 2)
 print("\nThe total cost in this order is :", totalCostHillClimbing)
 utils.graphicInterface(hillClimbingPackageStream, totalCostHillClimbing)
 
-print("\nSimulated Anneiling\n")
-simulatedAnneilingPath = algorithms.simulated_annealing(package_stream[:])
-utils.printPackageDF(simulatedAnneilingPath)
-totalCostSimulatedAnneiling = round(simulatedAnneilingPath.cost, 2)
-print("\nThe total cost in this order is :", totalCostSimulatedAnneiling)
-utils.graphicInterface(simulatedAnneilingPath, totalCostSimulatedAnneiling)
+print("\nSimulated Annealing\n")
+simulatedAnnealingPath = algorithms.simulated_annealing(package_stream[:])
+utils.printPackageDF(simulatedAnnealingPath)
+totalCostSimulatedAnnealing = round(simulatedAnnealingPath.cost, 2)
+print("\nThe total cost in this order is :", totalCostSimulatedAnnealing)
+utils.graphicInterface(simulatedAnnealingPath, totalCostSimulatedAnnealing)
 
 print("\nGenetic Algorithm\n")
 geneticPackageStream = algorithms.genetic_algorithm(package_stream[:], 50, 5000)  # Create a copy of package_stream
