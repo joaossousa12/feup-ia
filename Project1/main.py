@@ -14,6 +14,10 @@ else:
     map_size = 60
     package_stream = path.generate_static_package_stream()
 
+stats = int(input("Display Statistics? (1 for yes, 0 for no): "))
+
+if(stats == 1):
+    algorithms.stats_mode = True
 
 print("\nRandom order\n")
 randomPath = algorithms.random_path(package_stream[:])

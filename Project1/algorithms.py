@@ -3,6 +3,8 @@ import math
 
 import path
 
+stats_mode = False
+
 def random_path(package_stream):
     return path.Path(package_stream)
 
@@ -48,6 +50,8 @@ def hill_climbing(package_stream):
         if min_cost < current_cost:
             current_sequence = min_sequence
             current_cost = min_cost
+            if stats_mode:
+                print(f"New best solution found: {current_cost}")
         else:
             break
 
@@ -68,12 +72,16 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
             current_sequence = next_sequence
             current_cost = next_cost
             lowest.append(current_sequence)
+            if stats_mode:
+                print(f"New best solution accepted with cost: {current_cost}")
         # if not, we still have a chance to accept it
         else:
             probability = math.exp((current_cost - next_cost) / temperature)
             if random.random() < probability:
                 current_sequence = next_sequence
                 current_cost = next_cost
+                if stats_mode:
+                    print(f"Worse solution accepted due to temperature, new cost: {current_cost}")
         
         temperature *= 1 - cooling_rate
     for i in lowest:
@@ -101,8 +109,9 @@ def genetic_algorithm(package_stream, population_size, generations=5000):
             best_fitness = current_best_fitness
             best_individual = population[fitnesses.index(current_best_fitness)].copy()
             # did this just to see how the algorithm is working
-            print(f"New better solution found at generation {generation}:")
-            print(f"Fitness: {best_fitness}")
+            if(stats_mode):
+                print(f"New better solution found at generation {generation}:")
+                print(f"Fitness: {best_fitness}")
 
         # elite selection carry forward the best performing individuals
         elites = select_elites(population, fitnesses, elite_size)
@@ -181,15 +190,27 @@ def replace_worst_individuals(population, children, fitnesses):
     sorted_population[-len(children):] = children
     return sorted_population
 
-def tabu_search(package_stream, tabu_size=10, max_iter=1000):
-    current_solution = greedy(package_stream)
+def tabu_search(package_stream, tabu_size=10, max_iter=1000, diversify_after=100, dynamic_tabu=True):
+    current_solution = hill_climbing(package_stream)
     best_solution = current_solution
     tabu_list = []
+    
+    no_improve = 0 # number of iterations since last best update
 
     for iteration in range(max_iter):
         neighbors = current_solution.get_neighbors()
-
-        non_tabu_neighbors = [neighbor for neighbor in neighbors if neighbor.package_stream not in tabu_list]
+        
+        # to diversificate if it gets stuck for too long, randomly pick a neighbor
+        if no_improve > diversify_after:
+            current_solution = random.choice(neighbors)
+            no_improve = 0
+            continue
+        
+        non_tabu_neighbors = [
+            neighbor for neighbor in neighbors
+            if neighbor.package_stream not in tabu_list or
+               neighbor.calculateTotalCost() < best_solution.calculateTotalCost()  # aspiration criterion
+        ]
 
         if not non_tabu_neighbors:
             break
@@ -198,12 +219,23 @@ def tabu_search(package_stream, tabu_size=10, max_iter=1000):
 
         current_solution = best_neighbor
 
+        # dynamic tabu tenure 
+        if dynamic_tabu:
+            if no_improve > 50:  # increase tabu size if stuck
+                tabu_size = min(20, tabu_size + 1)
+            else:  # decrease tabu size if making progress
+                tabu_size = max(5, tabu_size - 1)
+
         tabu_list.append(current_solution.package_stream)
         if len(tabu_list) > tabu_size:
             tabu_list.pop(0)
 
         if current_solution.calculateTotalCost() < best_solution.calculateTotalCost():
             best_solution = current_solution
-            print(f"Iteration {iteration+1}: Best solution cost = {best_solution.calculateTotalCost()}")
+            no_improve = 0  
+            if stats_mode:
+                print(f"Iteration {iteration+1}: Best solution cost = {best_solution.calculateTotalCost()}")
+        else:
+            no_improve += 1
 
     return best_solution
