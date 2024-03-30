@@ -84,6 +84,7 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
                     print(f"Worse solution accepted due to temperature, new cost: {current_cost}")
         
         temperature *= 1 - cooling_rate
+        
     for i in lowest:
         if i.calculateTotalCost() < current_cost:
             current_sequence = i
