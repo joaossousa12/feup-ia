@@ -31,15 +31,17 @@ def greedy(package_stream): # will find the nearest package each time
 
     return path.Path(result)
 
-def hill_climbing(package_stream):
+def hill_climbing(package_stream): # starts with a greedy solution and iteratively explores neighboring solutions to find a lower cost solution
     current_sequence = greedy(package_stream)
     current_cost = current_sequence.calculateTotalCost()
 
     while True:
+        # generate neighboring solutions
         neighbors = current_sequence.get_neighbors()
         min_cost = current_cost
         min_sequence = current_sequence.package_stream
 
+        # evaluate each neighbor
         for neighbor in neighbors:
             cost = neighbor.calculateTotalCost()
 
@@ -47,26 +49,30 @@ def hill_climbing(package_stream):
                 min_cost = cost
                 min_sequence = neighbor
 
+        # update the current solution if a better neighbor is found
         if min_cost < current_cost:
             current_sequence = min_sequence
             current_cost = min_cost
             if stats_mode:
                 print(f"New best solution found: {current_cost}")
         else:
+            # break if there is no better solution found
             break
 
     return current_sequence
 
 # start with a given temperature and a given cooling_rate
 def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003):
-    current_sequence = hill_climbing(package_stream)
+    current_sequence = hill_climbing(package_stream) # initial solution from hill climbing
     current_cost = current_sequence.calculateTotalCost()
     
     lowest = []
     while temperature > 1:
+        # generate neighboring solutions
         neighbors = current_sequence.get_neighbors()
         next_sequence = random.choice(neighbors) 
         next_cost = next_sequence.calculateTotalCost()
+
         # If the new solution is better, accept it
         if next_cost < current_cost:
             current_sequence = next_sequence
@@ -74,6 +80,7 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
             lowest.append(current_sequence)
             if stats_mode:
                 print(f"New best solution accepted with cost: {current_cost}")
+
         # if not, we still have a chance to accept it
         else:
             probability = math.exp((current_cost - next_cost) / temperature)
@@ -89,14 +96,16 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
         if i.calculateTotalCost() < current_cost:
             current_sequence = i
             current_cost = i.calculateTotalCost()
+
     return current_sequence
 
+# start with a given population_size and number of generations
 def genetic_algorithm(package_stream, population_size, generations=5000):
     elite_size = round(0.05 * population_size)
     population = [random.sample(package_stream, len(package_stream)) for _ in range(population_size)]
     
-    hill_climbing_solution = hill_climbing(package_stream)
-    population[population_size-1] = hill_climbing_solution.package_stream
+    hill_climbing_solution = hill_climbing(package_stream) # initial solution from hill climbing
+    population[population_size-1] = hill_climbing_solution.package_stream # "inject" the hill climbing solution on the population
     
     best_individual = None
     best_fitness = float('inf')
@@ -138,16 +147,19 @@ def genetic_algorithm(package_stream, population_size, generations=5000):
     return path.Path(best_individual)
 
 def select_elites(population, fitnesses, elite_size):
+    # selects the top individuals (elites) based on their fitness.
     sorted_by_fitness = sorted(zip(fitnesses, population), key=lambda x: x[0])
     elites = [individual for _, individual in sorted_by_fitness[:elite_size]]
     return elites
 
 def ensure_elites(population, elites, fitnesses):
+    # ensures that the selected elites are part of the next generation and it replaces the least fit individuals with the elites in the new population.
     sorted_population = sorted(zip(fitnesses, population), key=lambda pair: pair[0])
     sorted_population[:len(elites)] = [(0, elite) for elite in elites]  # assuming fitness of 0 for elites for simplicity
     return [individual for _, individual in sorted_population]
 
 def tournament_selection(population, fitnesses, tournament_size=3):
+    # selects parents for crossover 
     parents = []
     for _ in range(len(population)):
         participants = random.sample(list(enumerate(fitnesses)), tournament_size)
@@ -155,7 +167,8 @@ def tournament_selection(population, fitnesses, tournament_size=3):
         parents.append(population[winner[0]])
     return parents
 
-def crossover(parent1, parent2): # ordered crossover
+def crossover(parent1, parent2):    
+    # generates offspring using ordered crossover (OX)
     size = len(parent1)
     start, end = sorted(random.sample(range(size), 2))
     child1 = [None]*size
@@ -181,18 +194,18 @@ def mutate(individual): # swap mutation
     individual[idx1], individual[idx2] = individual[idx2], individual[idx1] 
     return individual
 
-def mutate_with_probability(individual, mutation_rate=0.1):
+def mutate_with_probability(individual, mutation_rate=0.1): # if a random probability is lower than the mutation rate it mutates the individual
     if random.random() < mutation_rate:
         return mutate(individual)
     return individual
 
-def replace_worst_individuals(population, children, fitnesses):
+def replace_worst_individuals(population, children, fitnesses): # replaces the worst performing individuals in the population with the new children
     sorted_population = [x for _, x in sorted(zip(fitnesses, population), key=lambda pair: pair[0])]
     sorted_population[-len(children):] = children
     return sorted_population
 
 def tabu_search(package_stream, tabu_size=10, max_iter=1000, diversify_after=100, dynamic_tabu=True):
-    current_solution = hill_climbing(package_stream)
+    current_solution = hill_climbing(package_stream) # initial solution from hill climbing
     best_solution = current_solution
     tabu_list = []
     

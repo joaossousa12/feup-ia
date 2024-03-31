@@ -6,7 +6,7 @@ class Path:
         self.package_stream = package_stream
         self.cost = self.calculateTotalCost()
 
-    def calculateTotalCost(self):
+    def calculateTotalCost(self): # calculate the total cost of the path
         totalCost = 0
         totalDistance = 0
         currLocation = (0, 0)
@@ -24,12 +24,12 @@ class Path:
                 
                 totalCost += package.breaking_cost * damageChance
                 
-                # dantes tinhamos uma funcao que realmente via se o package tinha sido partido ou não,
+                # dantes tinhamos uma função que realmente via se o package tinha sido partido ou não,
                 # mas isso fazia com que para diferentes runs do algoritmo, certas vezes o package ia partir,
                 # e o totalCost ia aumentar, mas para a mesmo solução, certas vezes não partia e o totalCost não iria aumentar
 
-                # de forma a termos uma funcao de calculo de custo mais deterministico (que não dependesse da run em si), atualizamos
-                # o totalCost, para ter apenas em conta a damageChange e o breakingCost, e para não depender de uma funcao Random 
+                # de forma a termos uma função de cálculo de custo mais determinístico (que não dependesse da run em si), atualizamos
+                # o totalCost, para ter apenas em conta a damageChange e o breakingCost, e para não depender de uma função Random 
 
                 
                    
@@ -41,7 +41,7 @@ class Path:
 
         return totalCost
     
-    def get_neighbors(self):
+    def get_neighbors(self): # get neighbors of the current path
         neighbors = []
 
         for i in range(len(self.package_stream)):
@@ -52,7 +52,7 @@ class Path:
 
         return neighbors
 
-def generate_random_package_stream(num_packages, map_size):
+def generate_random_package_stream(num_packages, map_size): # random package stream
         package_types = ['fragile', 'normal', 'urgent']
 
         package_stream = [package.Package(random.choice(package_types), (random.uniform(0, map_size), random.uniform(0, map_size))) for _ in range(num_packages)]
@@ -60,7 +60,7 @@ def generate_random_package_stream(num_packages, map_size):
         return package_stream
 
 
-def generate_static_package_stream():
+def generate_static_package_stream(): # static package stream
     package_stream = [
         package.Package('urgent', (27.578325617764513, 38.566145329029766), delivery_time=114.44385489765162),
         package.Package('urgent', (3.7432942291667914, 4.068831340717898), delivery_time=160.69084169295067),

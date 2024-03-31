@@ -1,6 +1,4 @@
-import math
 import matplotlib.pyplot as plt
-import random
 import pandas as pd
 
 def graphicInterface(path, totalCost):
