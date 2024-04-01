@@ -4,7 +4,7 @@ import time
 
 import path
 
-flag = int(input("Do you want a random number of packages and the map size? (1 for yes, 0 for no): "))
+flag = int(input("Do you want to define yourself the number of packages and the map size? (1 for yes, 0 for no): "))
 
 if(flag == 1):
     num_packages = int(input("Number of packages (example: 15): "))
