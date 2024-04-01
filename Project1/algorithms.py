@@ -66,7 +66,7 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
     current_sequence = hill_climbing(package_stream) # initial solution from hill climbing
     current_cost = current_sequence.calculateTotalCost()
     
-    lowest = []
+    lowest = [current_sequence]
     while temperature > 1:
         # generate neighboring solutions
         neighbors = current_sequence.get_neighbors()
@@ -83,6 +83,7 @@ def simulated_annealing(package_stream, temperature = 700, cooling_rate = 0.003)
 
         # if not, we still have a chance to accept it
         else:
+            # probability of accepting a worst solution is lower, if the temperature is lower
             probability = math.exp((current_cost - next_cost) / temperature)
             if random.random() < probability:
                 current_sequence = next_sequence
